@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Schedule Calendar - July to October 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a3a3a 0%, #0d4f4f 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-selector {
+            display: inline-block;
+            position: relative;
+        }
+
+        .month-dropdown {
+            background: white;
+            border: 2px solid #1a7f7a;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            color: #2d3748;
+            cursor: pointer;
+            min-width: 250px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a7f7a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        .month-dropdown:hover {
+            box-shadow: 0 5px 15px rgba(26, 127, 122, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .month-dropdown:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 127, 122, 0.2);
+        }
+
+        .calendar-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 5px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-cell {
+            min-height: 120px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .day-cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: #1a7f7a;
+        }
+
+        .day-number {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .schedule-info {
+            font-size: 0.75em;
+            line-height: 1.4;
+            color: #4a5568;
+        }
+
+        .schedule-item {
+            margin: 3px 0;
+            padding: 2px 5px;
+            background: rgba(26, 127, 122, 0.1);
+            border-radius: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .weekend {
+            background: #f7fafc;
+            opacity: 0.7;
+        }
+
+        .empty-cell {
+            background: transparent;
+            border: 1px dashed #e2e8f0;
+            cursor: default;
+        }
+
+        .empty-cell:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #e2e8f0;
+        }
+
+        .other-month {
+            opacity: 0.3;
+            background: #f7fafc;
+        }
+
+        .total-hours {
+            font-weight: bold;
+            color: #1a7f7a;
+            margin-top: 5px;
+        }
+
+        .today {
+            background: linear-gradient(135deg, rgba(26, 127, 122, 0.1), rgba(13, 79, 79, 0.1));
+            border-color: #1a7f7a;
+            border-width: 3px;
+        }
+
+        .outside-schedule {
+            background: #f8f9fa;
+            opacity: 0.6;
+            border-style: dashed;
+        }
+
+        .outside-schedule:hover {
+            transform: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-schedule {
+            color: #a0aec0;
+            font-size: 0.8em;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .start-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            background: linear-gradient(135deg, #1a7f7a, #0d4f4f);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #4a5568;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #dc2626;
+        }
+
+        .modal-date {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .modal-schedule {
+            line-height: 1.8;
+        }
+
+        .modal-schedule-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(26, 127, 122, 0.1), rgba(13, 79, 79, 0.1));
+            border-radius: 10px;
+            border-left: 4px solid #1a7f7a;
+        }
+
+        .modal-schedule-item strong {
+            color: #2d3748;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            background: #1a7f7a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background: #0d4f4f;
+            transform: scale(1.1);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-button:disabled:hover {
+            transform: none;
+            background: #1a7f7a;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                gap: 5px;
+            }
+            
+            .day-cell {
+                min-height: 80px;
+                padding: 5px;
+                font-size: 0.8em;
+            }
+
+            .schedule-info {
+                display: none;
+            }
+
+            .day-header {
+                font-size: 0.9em;
+                padding: 10px 2px;
+            }
+
+            .month-dropdown {
+                font-size: 1em;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Weekly Schedule Calendar</h1>
+            <p style="color: #4a5568; margin-bottom: 20px; font-size: 1.1em;">Schedule: July 28 - October 10, 2025</p>
+            <div class="month-nav">
+                <button class="nav-button" id="prevMonth" onclick="changeMonth(-1)">‹</button>
+                <div class="month-selector">
+                    <select class="month-dropdown" id="monthSelector" onchange="updateCalendar()">
+                        <option value="6">July 2025</option>
+                        <option value="7">August 2025</option>
+                        <option value="8">September 2025</option>
+                        <option value="9">October 2025</option>
+                    </select>
+                </div>
+                <button class="nav-button" id="nextMonth" onclick="changeMonth(1)">›</button>
+            </div>
+        </div>
+        <div class="calendar-wrapper">
+            <div class="calendar-grid" id="calendar">
+                <!-- Calendar will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="modal-date" id="modalDate"></div>
+            <div class="modal-schedule" id="modalSchedule"></div>
+        </div>
+    </div>
+
+    <script>
+        const schedules = {
+            1: { // Monday
+                title: "Monday",
+                activities: [
+                    { name: "Morning development", time: "6:00 AM - 8:00 AM", hours: 2 },
+                    { name: "Review Meeting with Pedram", time: "8:15 AM - 9:15 AM", hours: 1 },
+                    { name: "Evening Development | Review | Research", time: "6:00 PM - 7:30 PM", hours: 1.5 }
+                ],
+                totalHours: 4.5
+            },
+            2: { // Tuesday
+                title: "Tuesday",
+                activities: [
+                    { name: "Morning development", time: "5:00 AM - 7:00 AM", hours: 2 },
+                    { name: "Review Meeting with Pedram", time: "7:15 AM - 8:15 AM", hours: 1 },
+                    { name: "Evening Development | Review | Research", time: "6:00 PM - 7:30 PM", hours: 1.5 }
+                ],
+                totalHours: 4.5
+            },
+            3: { // Wednesday
+                title: "Wednesday",
+                activities: [
+                    { name: "Morning development", time: "6:00 AM - 8:00 AM", hours: 2 },
+                    { name: "Review Meeting with Pedram", time: "Available after 7:00 PM if necessary", hours: 1 }
+                ],
+                totalHours: 3
+            },
+            4: { // Thursday
+                title: "Thursday",
+                activities: [
+                    { name: "Morning development", time: "5:00 AM - 7:00 AM", hours: 2 },
+                    { name: "Review Meeting with Pedram", time: "7:15 AM - 8:15 AM", hours: 1 },
+                    { name: "Evening Development | Review | Research", time: "6:00 PM - 7:30 PM", hours: 1.5 }
+                ],
+                totalHours: 4.5
+            },
+            5: { // Friday
+                title: "Friday",
+                activities: [
+                    { name: "Morning development", time: "6:00 AM - 8:00 AM", hours: 2 },
+                    { name: "Review Meeting with Pedram", time: "8:15 AM - 9:15 AM", hours: 1 },
+                    { name: "Evening Development | Review | Research", time: "6:00 PM - 7:30 PM", hours: 1.5 }
+                ],
+                totalHours: 4.5
+            }
+        };
+
+        let currentYear = 2025;
+        let currentMonth = 6; // July (0-indexed)
+        const today = new Date(2025, 6, 27); // July 27, 2025
+        const scheduleStartDate = new Date(2025, 6, 28); // July 28, 2025 - Monday
+        const scheduleEndDate = new Date(2025, 9, 10); // October 10, 2025 - Friday (last day WITH schedule)
+
+        function generateCalendar(year, month) {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day.substring(0, 3);
+                calendar.appendChild(header);
+            });
+
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const dayCell = createDayCell(
+                    new Date(year, month - 1, daysInPrevMonth - firstDay + i + 1),
+                    true
+                );
+                calendar.appendChild(dayCell);
+            }
+
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dayCell = createDayCell(date, false);
+                calendar.appendChild(dayCell);
+            }
+
+            // Add days from next month to complete the grid
+            const totalCells = firstDay + daysInMonth;
+            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayCell = createDayCell(
+                    new Date(year, month + 1, day),
+                    true
+                );
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        function createDayCell(date, isOtherMonth) {
+            const cell = document.createElement('div');
+            const dayOfWeek = date.getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const isToday = date.toDateString() === today.toDateString();
+            const isBeforeScheduleStart = date < scheduleStartDate;
+            const isAfterScheduleEnd = date > scheduleEndDate;
+            const isOutsideSchedule = isBeforeScheduleStart || isAfterScheduleEnd;
+            
+            let className = 'day-cell';
+            if (isOtherMonth) className += ' other-month';
+            if (isWeekend) className += ' weekend';
+            if (isToday) className += ' today';
+            if (isOutsideSchedule && !isOtherMonth) className += ' outside-schedule';
+            
+            cell.className = className;
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            cell.appendChild(dayNumber);
+
+            // Show schedule for days within the schedule period (including end date)
+            if (!isOtherMonth && !isWeekend && !isOutsideSchedule && schedules[dayOfWeek]) {
+                const scheduleInfo = document.createElement('div');
+                scheduleInfo.className = 'schedule-info';
+                
+                // Show abbreviated schedule info
+                schedules[dayOfWeek].activities.slice(0, 2).forEach(activity => {
+                    const item = document.createElement('div');
+                    item.className = 'schedule-item';
+                    item.textContent = activity.name;
+                    scheduleInfo.appendChild(item);
+                });
+                
+                const totalHours = document.createElement('div');
+                totalHours.className = 'total-hours';
+                totalHours.textContent = `${schedules[dayOfWeek].totalHours} hrs`;
+                scheduleInfo.appendChild(totalHours);
+                
+                cell.appendChild(scheduleInfo);
+            }
+
+            // Add "No schedule" text for days outside schedule period
+            if (!isOtherMonth && isOutsideSchedule) {
+                const noSchedule = document.createElement('div');
+                noSchedule.className = 'no-schedule';
+                noSchedule.textContent = 'No schedule';
+                cell.appendChild(noSchedule);
+            }
+
+            // Add "Schedule starts" indicator for July 28
+            if (date.toDateString() === scheduleStartDate.toDateString()) {
+                const startIndicator = document.createElement('div');
+                startIndicator.className = 'start-indicator';
+                startIndicator.textContent = '🚀 Schedule starts';
+                cell.appendChild(startIndicator);
+            }
+
+            // Add click event to show full schedule
+            if (!isOtherMonth) {
+                cell.addEventListener('click', () => showDayDetails(date));
+            }
+            
+            return cell;
+        }
+
+        function showDayDetails(date) {
+            const dayOfWeek = date.getDay();
+            const dateStr = date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('modalDate').textContent = dateStr;
+            
+            const modalSchedule = document.getElementById('modalSchedule');
+            modalSchedule.innerHTML = '';
+            
+            if (date < scheduleStartDate) {
+                modalSchedule.innerHTML = '<p style="text-align: center; color: #718096; font-size: 1.2em;">Schedule begins on Monday, July 28, 2025</p>';
+            } else if (date > scheduleEndDate) {
+                modalSchedule.innerHTML = '<p style="text-align: center; color: #718096; font-size: 1.2em;">Schedule ended on Friday, October 10, 2025</p>';
+            } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+                modalSchedule.innerHTML = '<p style="text-align: center; color: #718096; font-size: 1.2em;">No scheduled activities for weekends</p>';
+            } else if (schedules[dayOfWeek]) {
+                schedules[dayOfWeek].activities.forEach(activity => {
+                    const item = document.createElement('div');
+                    item.className = 'modal-schedule-item';
+                    item.innerHTML = `
+                        <strong>${activity.name}</strong>
+                        <div>⏰ ${activity.time}</div>
+                        <div>Duration: ${activity.hours} hours</div>
+                    `;
+                    modalSchedule.appendChild(item);
+                });
+                
+                const total = document.createElement('div');
+                total.style.marginTop = '20px';
+                total.style.fontSize = '1.2em';
+                total.style.fontWeight = 'bold';
+                total.style.color = '#1a7f7a';
+                total.style.textAlign = 'center';
+                total.textContent = `Total Hours: ${schedules[dayOfWeek].totalHours}`;
+                modalSchedule.appendChild(total);
+            }
+            
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function updateCalendar() {
+            const selector = document.getElementById('monthSelector');
+            currentMonth = parseInt(selector.value);
+            generateCalendar(currentYear, currentMonth);
+            updateNavButtons();
+        }
+
+        function changeMonth(direction) {
+            const selector = document.getElementById('monthSelector');
+            const currentIndex = selector.selectedIndex;
+            const newIndex = currentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < selector.options.length) {
+                selector.selectedIndex = newIndex;
+                updateCalendar();
+            }
+        }
+
+        function updateNavButtons() {
+            const selector = document.getElementById('monthSelector');
+            const currentIndex = selector.selectedIndex;
+            
+            document.getElementById('prevMonth').disabled = currentIndex === 0;
+            document.getElementById('nextMonth').disabled = currentIndex === selector.options.length - 1;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize calendar with current month (July 2025)
+        document.getElementById('monthSelector').value = '6';
+        updateCalendar();
+    </script>
+</body>
+</html>
